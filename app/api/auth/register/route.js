@@ -1,5 +1,5 @@
 import User from "@models/User";
-import { connectToDB } from "@mongodb";
+import { connectToDB } from "@mongodb/config";
 import { hash } from "bcryptjs";
 
 export const POST = async (req, res) => {
@@ -14,7 +14,8 @@ export const POST = async (req, res) => {
 
     if (existingUser) {
       return new Response("User already exists", {
-        status: 400,
+        status: 409,
+        statusText: "User already exists",
       });
     }
 

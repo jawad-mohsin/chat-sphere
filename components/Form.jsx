@@ -20,7 +20,47 @@ const Form = ({ type }) => {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => console.log(data);
+  const router = useRouter();
+
+  const onSubmit = async (data) => {
+    if (type === "register") {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      console.log(res);
+      if (res.ok) {
+        router.push("/");
+        toast.success("Account created successfully!");
+      }
+
+      if (!res.ok) {
+        toast.error(res.statusText);
+      }
+    }
+
+    if (type === "login") {
+      const res = await signIn("credentials", {
+        ...data,
+        redirect: false,
+      });
+
+      if (res.ok) {
+        toast.success("Loggged In Successfully!");
+        setTimeout(() => {
+          router.push("/chats");
+        }, 2000);
+      }
+
+      if (res.error) {
+        toast.error("Invalid email or password");
+      }
+    }
+  };
 
   return (
     <div className="auth">
@@ -34,7 +74,7 @@ const Form = ({ type }) => {
         />
         <form className="form" onSubmit={handleSubmit(onSubmit)}>
           {type === "register" && (
-            <>
+            <div>
               <div className="input">
                 <input
                   defaultValue=""
@@ -61,9 +101,9 @@ const Form = ({ type }) => {
               {errors.username && (
                 <p className="text-red-500">{errors.username.message}</p>
               )}
-            </>
+            </div>
           )}
-          <>
+          <div>
             <div className="input">
               <input
                 defaultValue=""
@@ -79,8 +119,8 @@ const Form = ({ type }) => {
             {errors.email && (
               <p className="text-red-500">{errors.email.message}</p>
             )}
-          </>
-          <>
+          </div>
+          <div>
             <div className="input">
               <input
                 defaultValue=""
@@ -89,7 +129,7 @@ const Form = ({ type }) => {
                   validate: (value) => {
                     if (
                       value.length < 5 ||
-                      !value.match(/[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/)
+                      !value.match(/[!@#$%^&*()_+{}\[\]:;<div>,.?~\\/-]/)
                     ) {
                       return "Password must be at least 5 characters and contain at least one special character";
                     }
@@ -106,7 +146,7 @@ const Form = ({ type }) => {
             {errors.password && (
               <p className="text-red-500">{errors.password.message}</p>
             )}
-          </>
+          </div>
           <button className="button" type="submit">
             {type === "register" ? "Join Free" : "Let's Chat"}
           </button>
